@@ -101,6 +101,10 @@ jobs:
           WHATSAPP_TOKEN: ${{ secrets.WHATSAPP_TOKEN }}
           WHATSAPP_PHONE_NUMBER_ID: ${{ secrets.WHATSAPP_PHONE_NUMBER_ID }}
           WHATSAPP_ALERTS_ENABLED: ${{ secrets.WHATSAPP_ALERTS_ENABLED }}
+          SMS_TO: ${{ secrets.SMS_TO }}
+          TEXTBELT_KEY: ${{ secrets.TEXTBELT_KEY }}
+          TWILIO_SMS_FROM: ${{ secrets.TWILIO_SMS_FROM }}
+          SMS_ALERTS_ENABLED: ${{ secrets.SMS_ALERTS_ENABLED }}
           WEBULL_APP_KEY: ${{ secrets.WEBULL_APP_KEY }}
           WEBULL_APP_SECRET: ${{ secrets.WEBULL_APP_SECRET }}
           WEBULL_ACCOUNT_ID: ${{ secrets.WEBULL_ACCOUNT_ID }}
@@ -114,6 +118,13 @@ jobs:
             echo "WHATSAPP (Meta Cloud) configured=yes"
           else
             echo "WHATSAPP configured=NO — set WHATSAPP_TO plus CALLMEBOT_APIKEY, Twilio, or Meta Cloud"
+          fi
+          if [ -n "${TEXTBELT_KEY:-}" ] && [ -n "${SMS_TO:-}" ]; then
+            echo "SMS (TextBelt) configured=yes"
+          elif [ -n "${TWILIO_SMS_FROM:-}" ] && [ -n "${SMS_TO:-}" ] && [ -n "${TWILIO_ACCOUNT_SID:-}" ]; then
+            echo "SMS (Twilio) configured=yes"
+          else
+            echo "SMS configured=NO — set SMS_TO plus TEXTBELT_KEY or TWILIO_SMS_FROM"
           fi
           if [ -n "${WEBULL_APP_KEY:-}" ] && [ -n "${WEBULL_APP_SECRET:-}" ]; then
             echo "WEBULL keys configured=yes (paper submit needs WEBULL_PAPER_SUBMIT=1; production host is refused)"

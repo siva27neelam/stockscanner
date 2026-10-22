@@ -51,7 +51,10 @@ Env knobs:
 | `LIVE_DESK_PAUSE_SEC=15` | Pause between cycles |
 | `LIVE_DESK_EXTENDED=1` | Wider weekday window |
 | `LIVE_DESK_ALWAYS=1` | Run even outside RTH |
-| `WHATSAPP_TO` + `CALLMEBOT_APIKEY` | WhatsApp via CallMeBot (or Twilio / Meta Cloud env instead) |
+| `SMS_TO` + `TEXTBELT_KEY` | Text message via TextBelt. The public key `textbelt` is one text per day |
+| `SMS_TO` + `TWILIO_SMS_FROM` | Text message via Twilio SMS. Also needs `TWILIO_ACCOUNT_SID` and `TWILIO_AUTH_TOKEN` |
+| `SMS_ALERTS_ENABLED=0` | Pause SMS only |
+| `WHATSAPP_TO` + `CALLMEBOT_APIKEY` | WhatsApp via CallMeBot when that bot has open slots (or Twilio / Meta Cloud env instead) |
 | `WHATSAPP_ALERTS_ENABLED=0` | Pause WhatsApp only |
 | `WEBULL_APP_KEY` / `WEBULL_APP_SECRET` / `WEBULL_ACCOUNT_ID` | Sandbox app key, secret, and paper account id |
 | `WEBULL_PAPER_ACCOUNT_ID` | Optional paper account id override |
@@ -70,5 +73,5 @@ Env knobs:
 | Expectation | Reality |
 |-------------|---------|
 | Tick → UI in &lt;1s | Not supported on Pages; live host still waits for scan |
-| Signal → WhatsApp / Webull as soon as scan decides | Yes on live host; ~10m batch on Pages Actions |
+| Signal → SMS / WhatsApp / Webull as soon as scan decides | Yes on live host; ~10m batch on Pages Actions |
 | Webull fill without sandbox keys / WEBULL_PAPER_SUBMIT | No — dry-run staging only |
