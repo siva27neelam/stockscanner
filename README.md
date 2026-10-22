@@ -76,9 +76,20 @@ Cursor cloud agents and free tunnels (`trycloudflare`, `localhost.run`) are **ep
 2. Or [Render → New Web Service](https://render.com/) → same repo (`render.yaml`)
 
 ```bash
-# Local Docker
+# Home server (Docker Compose). Put SMS_TO and TEXTBELT_KEY in .env first.
+cp .env.example .env
+docker compose up -d --build
+# http://127.0.0.1:8787
+```
+
+```bash
+# One-off container without Compose
 docker build -t signal-desk .
-docker run -p 8787:8787 -e PORT=8787 -v signal-desk-data:/app/outputs signal-desk
+docker run -d --name signal-desk --restart unless-stopped \
+  -p 8787:8787 -e PORT=8787 --env-file .env \
+  -v "$PWD/outputs:/app/outputs" \
+  -v "$PWD/config.yaml:/app/config.yaml:ro" \
+  signal-desk
 ```
 
 ```bash

@@ -1,0 +1,27 @@
+# Home-server Signal Desk. From the repo root:
+#   cp .env.example .env
+#   docker compose up -d --build
+# Desk: http://127.0.0.1:8787  (also the machine's LAN address)
+services:
+  signal-desk:
+    build: .
+    image: signal-desk
+    container_name: signal-desk
+    restart: unless-stopped
+    ports:
+      - "8787:8787"
+    env_file:
+      - .env
+    environment:
+      PORT: "8787"
+      LIVE_DESK_LOOP: "1"
+      PYTHONUNBUFFERED: "1"
+    volumes:
+      - ./outputs:/app/outputs
+      - ./config.yaml:/app/config.yaml:ro
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://127.0.0.1:8787/"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
