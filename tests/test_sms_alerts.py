@@ -7,7 +7,7 @@ from odte_scanner.alerts import sms
 
 
 def _clear_sms(monkeypatch):
-    for key in (
+    keys = [
         "SMS_TO",
         "TEXT_TO",
         "TEXTBELT_KEY",
@@ -17,7 +17,11 @@ def _clear_sms(monkeypatch):
         "TWILIO_SMS_FROM",
         "TWILIO_FROM",
         "SMS_ALERTS_ENABLED",
-    ):
+    ]
+    for index in range(2, 10):
+        keys.append(f"SMS_TO_{index}")
+        keys.append(f"TEXT_TO_{index}")
+    for key in keys:
         monkeypatch.delenv(key, raising=False)
 
 
@@ -26,6 +30,65 @@ def test_sms_not_configured(monkeypatch):
     assert sms.configured()["ok"] is False
     res = sms.send_sms_text("BUY AAPL")
     assert res["skipped"] is True
+
+
+def test_recipients_from_comma_list_and_extra_vars(monkeypatch):
+    _clear_sms(monkeypatch)
+    monkeypatch.setenv("SMS_TO", "5551234567, +1 (555) 765-4321; 5551234567")
+    monkeypatch.setenv("SMS_TO_2", "447700900123")
+    assert sms._recipients() == ["+15551234567", "+15557654321", "+447700900123"]
+
+
+def test_textbelt_sends_each_number(monkeypatch):
+    _clear_sms(monkeypatch)
+    monkeypatch.setenv("SMS_TO", "5551111111,5552222222")
+    monkeypatch.setenv("TEXTBELT_KEY", "paid-key")
+
+    class FakeResp:
+        status_code = 200
+        content = b'{"success":true,"textId":9,"quotaRemaining":3}'
+
+        def json(self):
+            return {"success": True, "textId": 9, "quotaRemaining": 3}
+
+    phones: list[str] = []
+
+    def fake_post(url, data=None, timeout=None, auth=None):
+        phones.append(data["phone"])
+        return FakeResp()
+
+    monkeypatch.setattr(sms.requests, "post", fake_post)
+    res = sms.send_sms_text("BUY AMD")
+    assert res["ok"] is True
+    assert res["recipients"] == ["+15551111111", "+15552222222"]
+    assert phones == ["+15551111111", "+15552222222"]
+
+
+def test_partial_failure_still_counts_as_sent(monkeypatch):
+    _clear_sms(monkeypatch)
+    monkeypatch.setenv("SMS_TO", "5551111111 5552222222")
+    monkeypatch.setenv("TEXTBELT_KEY", "paid-key")
+
+    def fake_post(url, data=None, timeout=None, auth=None):
+        class FakeResp:
+            def __init__(self, ok: bool):
+                self.status_code = 200 if ok else 400
+                self._ok = ok
+                self.content = b"{}"
+                self.text = "nope"
+
+            def json(self):
+                if self._ok:
+                    return {"success": True, "textId": 1, "quotaRemaining": 2}
+                return {"success": False, "error": "bad number"}
+
+        return FakeResp(data["phone"].endswith("1111"))
+
+    monkeypatch.setattr(sms.requests, "post", fake_post)
+    res = sms.send_sms_text("BUY AMD")
+    assert res["ok"] is True
+    assert res["recipients"] == ["+15551111111"]
+    assert res["failed"]
 
 
 def test_e164_adds_us_country_code():

@@ -51,7 +51,7 @@ Env knobs:
 | `LIVE_DESK_PAUSE_SEC=15` | Pause between cycles |
 | `LIVE_DESK_EXTENDED=1` | Wider weekday window |
 | `LIVE_DESK_ALWAYS=1` | Run even outside RTH |
-| `SMS_TO` + `TEXTBELT_KEY` | Text message via TextBelt. The public key `textbelt` is one text per day |
+| `SMS_TO` + `TEXTBELT_KEY` | Text message via TextBelt. Comma-separate numbers. The public key `textbelt` is one text per day |
 | `SMS_TO` + `TWILIO_SMS_FROM` | Text message via Twilio SMS. Also needs `TWILIO_ACCOUNT_SID` and `TWILIO_AUTH_TOKEN` |
 | `SMS_ALERTS_ENABLED=0` | Pause SMS only |
 | `WHATSAPP_TO` + `CALLMEBOT_APIKEY` | WhatsApp via CallMeBot when that bot has open slots (or Twilio / Meta Cloud env instead) |

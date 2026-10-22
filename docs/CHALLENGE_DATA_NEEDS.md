@@ -78,8 +78,9 @@ Cloud Agents cannot write GitHub secrets (403). Do **not** commit the key.
      use **Signal Desk Pages**.
    - Floor is still ~one focus-scan duration on GitHub Actions — not tick streaming.
    - **SMS (use this when CallMeBot is full):**
-     - TextBelt: `SMS_TO` (your mobile) and `TEXTBELT_KEY` from https://textbelt.com.
-       The shared key `textbelt` sends one free text per day, which is not enough for a scan. Create your own key.
+     - TextBelt: `SMS_TO` and `TEXTBELT_KEY` from https://textbelt.com.
+       Several phones: `SMS_TO=15551111111,15552222222` (or `SMS_TO_2`, `SMS_TO_3`, …).
+       Each number uses one credit. The shared key `textbelt` sends one free text per day, which is not enough for a scan. Create your own key.
      - Twilio SMS: `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `TWILIO_SMS_FROM` (a Twilio number), `SMS_TO`
    - **WhatsApp, if CallMeBot has a free slot:** `WHATSAPP_TO` + `CALLMEBOT_APIKEY`
      from https://www.callmebot.com/blog/free-api-whatsapp-messages/
