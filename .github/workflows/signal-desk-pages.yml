@@ -101,6 +101,9 @@ jobs:
           TRADIER_SANDBOX: ${{ secrets.TRADIER_SANDBOX }}
           POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
           MASSIVE_API_KEY: ${{ secrets.MASSIVE_API_KEY }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          TELEGRAM_ALERTS_ENABLED: ${{ secrets.TELEGRAM_ALERTS_ENABLED }}
           TWILIO_ACCOUNT_SID: ${{ secrets.TWILIO_ACCOUNT_SID }}
           TWILIO_AUTH_TOKEN: ${{ secrets.TWILIO_AUTH_TOKEN }}
           TWILIO_WHATSAPP_FROM: ${{ secrets.TWILIO_WHATSAPP_FROM }}
@@ -123,6 +126,9 @@ jobs:
           TRADIER_SANDBOX: ${{ secrets.TRADIER_SANDBOX }}
           POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
           MASSIVE_API_KEY: ${{ secrets.MASSIVE_API_KEY }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          TELEGRAM_ALERTS_ENABLED: ${{ secrets.TELEGRAM_ALERTS_ENABLED }}
           TWILIO_ACCOUNT_SID: ${{ secrets.TWILIO_ACCOUNT_SID }}
           TWILIO_AUTH_TOKEN: ${{ secrets.TWILIO_AUTH_TOKEN }}
           TWILIO_WHATSAPP_FROM: ${{ secrets.TWILIO_WHATSAPP_FROM }}
@@ -154,6 +160,11 @@ jobs:
             echo "POLYGON_API_KEY configured=yes"
           else
             echo "POLYGON_API_KEY configured=NO — add repo secret POLYGON_API_KEY (Massive key OK)"
+          fi
+          if [ -n "${TELEGRAM_BOT_TOKEN:-}" ] && [ -n "${TELEGRAM_CHAT_ID:-}" ]; then
+            echo "TELEGRAM configured=yes"
+          else
+            echo "TELEGRAM configured=NO — set TELEGRAM_BOT_TOKEN + TELEGRAM_CHAT_ID (comma-separate chat ids)"
           fi
           if [ -n "${CALLMEBOT_APIKEY:-}" ] && [ -n "${WHATSAPP_TO:-}" ]; then
             echo "WHATSAPP (CallMeBot) configured=yes"

@@ -30,7 +30,7 @@ GitHub Pages is a **static** snapshot (~10m Actions cycle). For BUY/SELL that up
 as soon as each focus scan finishes, deploy the Docker UI:
 
 1. [Railway](https://railway.app/new) or [Render](https://render.com/) → this repo  
-2. Set secrets: Tradier / UW / SMS or WhatsApp / Webull as needed  
+2. Set secrets: Tradier / UW / Telegram / Webull as needed  
 3. Webull paper (sandbox) submits: set the sandbox key, secret, and account id, then `WEBULL_PAPER_SUBMIT=1`  
 4. Open the service URL — background **live desk worker** scans continuously in RTH  
 

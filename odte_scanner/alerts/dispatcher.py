@@ -1,4 +1,4 @@
-"""Collect BUY/SELL pulses from a desk snapshot and push WhatsApp or SMS alerts.
+"""Collect BUY/SELL pulses from a desk snapshot and push Telegram, WhatsApp, or SMS alerts.
 
 Gold Setup (Sure Winner MAX/HIGH) and Golden Flow prints are part of this
 personal-chat pulse. They are collected first so the per-cycle send cap cannot
@@ -17,6 +17,8 @@ from typing import Any
 
 from odte_scanner.alerts.sms import configured as sms_configured
 from odte_scanner.alerts.sms import send_sms_text
+from odte_scanner.alerts.telegram import configured as telegram_configured
+from odte_scanner.alerts.telegram import send_telegram_text
 from odte_scanner.alerts.whatsapp import configured as whatsapp_configured
 from odte_scanner.alerts.whatsapp import send_whatsapp_text
 from odte_scanner.trading.golden import is_golden_unusual_flow, is_sure_winner_gold
@@ -368,8 +370,14 @@ def collect_trade_alerts(snapshot: dict[str, Any]) -> list[dict[str, Any]]:
     return out
 
 
-def _provider_labels(wa_cfg: dict[str, Any], sms_cfg: dict[str, Any]) -> list[str]:
+def _provider_labels(
+    tg_cfg: dict[str, Any],
+    wa_cfg: dict[str, Any],
+    sms_cfg: dict[str, Any],
+) -> list[str]:
     labels: list[str] = []
+    if tg_cfg.get("ok"):
+        labels.append("telegram")
     if wa_cfg.get("ok"):
         if wa_cfg.get("callmebot"):
             labels.append("callmebot")
@@ -393,6 +401,14 @@ def _send_channels(message: str) -> tuple[list[str], list[str]]:
     """Send one alert on every configured channel. Returns (ok_providers, errors)."""
     ok_providers: list[str] = []
     errors: list[str] = []
+    tg = telegram_configured()
+    if tg.get("ok") and _env_flag("TELEGRAM_ALERTS_ENABLED", True):
+        res = send_telegram_text(message)
+        if res.get("ok"):
+            ok_providers.append("telegram")
+        else:
+            errors.append(f"telegram: {res.get('error') or res}")
+
     wa = whatsapp_configured()
     if wa.get("ok") and _env_flag("WHATSAPP_ALERTS_ENABLED", True):
         res = send_whatsapp_text(message)
@@ -418,21 +434,28 @@ def dispatch_snapshot_alerts(
     dry_run: bool = False,
     max_send: int = 8,
 ) -> dict[str, Any]:
-    """Send WhatsApp and/or SMS for *new* BUY/SELL pulses. No-op if neither is configured."""
+    """Send Telegram, WhatsApp, and/or SMS for *new* BUY/SELL pulses."""
     # Global pause
     if not _env_flag("DESK_ALERTS_ENABLED", True):
         return {"ok": False, "skipped": True, "reason": "DESK_ALERTS_ENABLED=0"}
 
+    tg_cfg = telegram_configured()
+    tg_enabled = _env_flag("TELEGRAM_ALERTS_ENABLED", True)
     wa_cfg = whatsapp_configured()
     wa_enabled = _env_flag("WHATSAPP_ALERTS_ENABLED", True)
     sms_cfg = sms_configured()
     sms_enabled = _env_flag("SMS_ALERTS_ENABLED", True)
-    any_channel = bool((wa_cfg.get("ok") and wa_enabled) or (sms_cfg.get("ok") and sms_enabled))
+    any_channel = bool(
+        (tg_cfg.get("ok") and tg_enabled)
+        or (wa_cfg.get("ok") and wa_enabled)
+        or (sms_cfg.get("ok") and sms_enabled)
+    )
 
     alerts = collect_trade_alerts(snapshot)
     path = Path(seen_path) if seen_path else DEFAULT_SEEN
     seen = _load_seen(path)
     providers = _provider_labels(
+        tg_cfg if tg_enabled else {},
         wa_cfg if wa_enabled else {},
         sms_cfg if sms_enabled else {},
     )
@@ -486,7 +509,7 @@ def dispatch_snapshot_alerts(
             "providers": providers,
             "error": None
             if any_channel
-            else "No alert channel configured (set SMS_TO + TEXTBELT_KEY or TWILIO_SMS_FROM, or a WhatsApp backend)",
+            else "No alert channel configured (set TELEGRAM_BOT_TOKEN + TELEGRAM_CHAT_ID, or a paid SMS/WhatsApp backend)",
         }
 
     sent: list[dict[str, Any]] = []

@@ -68,7 +68,7 @@ Cloud Agents cannot write GitHub secrets (403). Do **not** commit the key.
    - Why: fills + live greeks instead of Yahoo snapshots on Pages cron
    - Already partially stubbed under live_trading / webull
 
-7. **SMS / WhatsApp BUY/SELL alerts** (entry + exit pulses)
+7. **Telegram / SMS / WhatsApp BUY/SELL alerts** (entry + exit pulses)
    - Why: phone push on new BUY NOW / SELL NOW / RIP / Challenge / ML6 pulses
    - **Delivery:** workflow **Signal Desk Live** runs about every **10 minutes** in
      RTH: focus scan → export site → WhatsApp → Pages deploy. Same export runs
@@ -77,7 +77,12 @@ Cloud Agents cannot write GitHub secrets (403). Do **not** commit the key.
      sends the same pulses after each focus scan. Weekend / push deploys still
      use **Signal Desk Pages**.
    - Floor is still ~one focus-scan duration on GitHub Actions — not tick streaming.
-   - **SMS (use this when CallMeBot is full):**
+   - **Telegram (free):**
+     1. In Telegram, open **@BotFather** → `/newbot` → copy `TELEGRAM_BOT_TOKEN`
+     2. Each person opens that bot and presses **Start**
+     3. Open `https://api.telegram.org/bot<TOKEN>/getUpdates` and copy each `"chat":{"id": ...}`
+     4. `TELEGRAM_CHAT_ID=111,222` (or `TELEGRAM_CHAT_ID_2`, …). One group: add the bot to the group and use that negative chat id
+   - **SMS (paid):**
      - TextBelt: `SMS_TO` and `TEXTBELT_KEY` from https://textbelt.com.
        Several phones: `SMS_TO=15551111111,15552222222` (or `SMS_TO_2`, `SMS_TO_3`, …).
        Each number uses one credit. The shared key `textbelt` sends one free text per day, which is not enough for a scan. Create your own key.
