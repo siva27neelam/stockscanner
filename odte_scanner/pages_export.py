@@ -63,7 +63,7 @@ def _static_html(page: str) -> str:
         "          const b = document.createElement('div');\n"
         "          b.id = 'pagesHostBadge';\n"
         "          b.style.cssText = 'color:var(--accent);font-size:.85rem;margin:.2rem 0 .6rem;';\n"
-        "          b.textContent = 'Hosted on GitHub Pages · Live desk ~every scan (~10m RTH) · Telegram + Webull sync on export';\n"
+        "          b.textContent = 'Hosted on GitHub Pages · Live desk ~every scan (~10m RTH) · WhatsApp + Webull sync on export';\n"
         "          lede.insertAdjacentElement('afterend', b);\n"
         "        }\n"
         "      }\n"
@@ -166,7 +166,7 @@ def export_pages(
     (data_dir / "scorecard_ledger.jsonl").write_text(ledger_text())
     (out / "scorecard.html").write_text(render_scorecard_page(live=False, initial=scorecard))
 
-    # Telegram / WhatsApp — skipped on Pages when fast alert loop owns delivery
+    # WhatsApp — skipped on Pages when fast alert loop owns delivery
     # (set SKIP_DESK_ALERTS=1 on Signal Desk Pages to avoid duplicate pings).
     alert_meta: dict = {"ok": False, "skipped": True}
     try:

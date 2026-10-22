@@ -4,7 +4,7 @@ GitHub Pages cannot stream ticks — it only refreshes when Actions deploys.
 This worker runs *inside* the live Flask host and continuously:
 
   1. focus scan (Tradier / UW / Polygon when secrets set)
-  2. Telegram pulse for *new* BUY/SELL
+  2. WhatsApp pulse for *new* BUY/SELL
   3. Offline snapshot rebuild → Webull auto_sync (stage or live submit)
 
 Cadence ≈ one focus-scan duration + short pause (back-to-back). That is the
@@ -48,7 +48,7 @@ def _in_rth_window(*, extended: bool = False) -> bool:
 
 
 def run_live_desk_cycle(config_path: str | None = None) -> dict[str, Any]:
-    """One scan + Telegram/Webull pulse. Safe to call from a background thread."""
+    """One scan + WhatsApp/Webull pulse. Safe to call from a background thread."""
     from odte_scanner.alert_pulse import pulse_desk_alerts
     from odte_scanner.scanner import run_scan
 

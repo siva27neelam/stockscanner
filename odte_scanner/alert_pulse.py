@@ -1,4 +1,4 @@
-"""Fast BUY/SELL alert pulse — snapshot + Telegram without Pages deploy."""
+"""Fast BUY/SELL alert pulse — snapshot + WhatsApp without Pages deploy."""
 
 from __future__ import annotations
 
@@ -47,7 +47,7 @@ def pulse_desk_alerts(
     *,
     skip_if_env: str = "SKIP_DESK_ALERTS",
 ) -> dict[str, Any]:
-    """Rebuild board from latest scan outputs and push new BUY/SELL Telegram alerts."""
+    """Rebuild board from latest scan outputs and push new BUY/SELL WhatsApp alerts."""
     if (os.environ.get(skip_if_env) or "").strip().lower() in {"1", "true", "yes", "on"}:
         return {"ok": False, "skipped": True, "note": f"{skip_if_env} set"}
 

@@ -1,4 +1,4 @@
-"""Collect BUY/SELL pulses from a desk snapshot and push Telegram / WhatsApp alerts.
+"""Collect BUY/SELL pulses from a desk snapshot and push WhatsApp alerts.
 
 Gold Setup (Sure Winner MAX/HIGH) and Golden Flow prints are part of this
 personal-chat pulse. They are collected first so the per-cycle send cap cannot
@@ -15,8 +15,6 @@ import re
 from pathlib import Path
 from typing import Any
 
-from odte_scanner.alerts.telegram import configured as telegram_configured
-from odte_scanner.alerts.telegram import send_telegram_text
 from odte_scanner.alerts.whatsapp import configured as whatsapp_configured
 from odte_scanner.alerts.whatsapp import send_whatsapp_text
 from odte_scanner.trading.golden import is_golden_unusual_flow, is_sure_winner_gold
@@ -368,35 +366,22 @@ def collect_trade_alerts(snapshot: dict[str, Any]) -> list[dict[str, Any]]:
     return out
 
 
-def _provider_labels(tg_ok: bool, wa_cfg: dict[str, Any]) -> list[str]:
-    labels: list[str] = []
-    if tg_ok:
-        labels.append("telegram")
-    if wa_cfg.get("ok"):
-        if wa_cfg.get("callmebot"):
-            labels.append("callmebot")
-        elif wa_cfg.get("twilio"):
-            labels.append("twilio")
-        elif wa_cfg.get("meta"):
-            labels.append("meta")
-        else:
-            labels.append("whatsapp")
-    return labels
+def _provider_labels(wa_cfg: dict[str, Any]) -> list[str]:
+    if not wa_cfg.get("ok"):
+        return []
+    if wa_cfg.get("callmebot"):
+        return ["callmebot"]
+    if wa_cfg.get("twilio"):
+        return ["twilio"]
+    if wa_cfg.get("meta"):
+        return ["meta"]
+    return ["whatsapp"]
 
 
-def _send_all_channels(message: str) -> tuple[list[str], list[str]]:
-    """Send to every configured channel. Returns (ok_providers, errors)."""
+def _send_whatsapp(message: str) -> tuple[list[str], list[str]]:
+    """Send one alert on WhatsApp. Returns (ok_providers, errors)."""
     ok_providers: list[str] = []
     errors: list[str] = []
-
-    tg = telegram_configured()
-    if tg.get("ok"):
-        res = send_telegram_text(message)
-        if res.get("ok"):
-            ok_providers.append("telegram")
-        else:
-            errors.append(f"telegram: {res.get('error') or res}")
-
     wa = whatsapp_configured()
     if wa.get("ok") and _env_flag("WHATSAPP_ALERTS_ENABLED", True):
         res = send_whatsapp_text(message)
@@ -404,7 +389,6 @@ def _send_all_channels(message: str) -> tuple[list[str], list[str]]:
             ok_providers.append(str(res.get("provider") or "whatsapp"))
         else:
             errors.append(f"whatsapp: {res.get('error') or res}")
-
     return ok_providers, errors
 
 
@@ -415,20 +399,19 @@ def dispatch_snapshot_alerts(
     dry_run: bool = False,
     max_send: int = 8,
 ) -> dict[str, Any]:
-    """Send Telegram/WhatsApp for *new* BUY/SELL pulses. No-op if none configured."""
+    """Send WhatsApp for *new* BUY/SELL pulses. No-op if WhatsApp is not configured."""
     # Global pause
     if not _env_flag("DESK_ALERTS_ENABLED", True):
         return {"ok": False, "skipped": True, "reason": "DESK_ALERTS_ENABLED=0"}
 
-    tg_cfg = telegram_configured()
     wa_cfg = whatsapp_configured()
     wa_enabled = _env_flag("WHATSAPP_ALERTS_ENABLED", True)
-    any_channel = bool(tg_cfg.get("ok") or (wa_cfg.get("ok") and wa_enabled))
+    any_channel = bool(wa_cfg.get("ok") and wa_enabled)
 
     alerts = collect_trade_alerts(snapshot)
     path = Path(seen_path) if seen_path else DEFAULT_SEEN
     seen = _load_seen(path)
-    providers = _provider_labels(bool(tg_cfg.get("ok")), wa_cfg if wa_enabled else {})
+    providers = _provider_labels(wa_cfg if wa_enabled else {})
 
     # First-ever run: seed without spamming the whole board
     prime_only = (os.environ.get("DESK_ALERTS_PRIME") or os.environ.get("WHATSAPP_ALERTS_PRIME") or "").strip().lower() in {
@@ -477,13 +460,15 @@ def dispatch_snapshot_alerts(
             "fresh": len(fresh),
             "skipped": not any_channel,
             "providers": providers,
-            "error": None if any_channel else "No alert channel secrets set (Telegram or WhatsApp)",
+            "error": None
+            if any_channel
+            else "WhatsApp is not configured (set WHATSAPP_TO and CALLMEBOT_APIKEY, Twilio, or Meta Cloud)",
         }
 
     sent: list[dict[str, Any]] = []
     errors: list[str] = []
     for a in fresh[: max(1, int(max_send))]:
-        ok_providers, errs = _send_all_channels(a["message"])
+        ok_providers, errs = _send_whatsapp(a["message"])
         errors.extend(errs)
         if ok_providers:
             seen.add(a["key"])

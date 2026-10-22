@@ -46,7 +46,7 @@ def test_live_desk_cycle(monkeypatch):
     )
     monkeypatch.setattr(
         "odte_scanner.alert_pulse.pulse_desk_alerts",
-        lambda *_a, **_k: {"ok": True, "sent": 0, "providers": ["telegram"]},
+        lambda *_a, **_k: {"ok": True, "sent": 0, "providers": ["whatsapp"]},
     )
     out = run_live_desk_cycle()
     assert out["desk_alerts"]["ok"] is True

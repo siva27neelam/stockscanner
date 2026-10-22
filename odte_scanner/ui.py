@@ -7888,13 +7888,13 @@ def create_app(config_path: str | None = None) -> Flask:
 
 
 def run_ui(host: str = "0.0.0.0", port: int = 8787, config_path: str | None = None) -> None:
-    # Background focus scan + Telegram + Webull — only on always-on hosts (not Pages).
+    # Background focus scan + WhatsApp + Webull — only on always-on hosts (not Pages).
     try:
         from odte_scanner.live_desk import start_live_desk_worker
 
         if start_live_desk_worker(config_path):
             logger.info(
-                "Live desk worker on — BUY/SELL board + Telegram + Webull refresh after each focus scan"
+                "Live desk worker on — BUY/SELL board + WhatsApp + Webull refresh after each focus scan"
             )
     except Exception as exc:  # noqa: BLE001
         logger.warning("live desk worker not started: %s", exc)

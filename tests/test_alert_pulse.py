@@ -39,8 +39,8 @@ def test_pulse_dispatches(monkeypatch, tmp_path):
             "configured": True,
             "sent": 1,
             "primed": False,
-            "providers": ["telegram"],
-            "provider": "telegram",
+            "providers": ["whatsapp"],
+            "provider": "whatsapp",
         }
 
     monkeypatch.setattr(

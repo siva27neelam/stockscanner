@@ -68,21 +68,22 @@ Cloud Agents cannot write GitHub secrets (403). Do **not** commit the key.
    - Why: fills + live greeks instead of Yahoo snapshots on Pages cron
    - Already partially stubbed under live_trading / webull
 
-7. **Telegram / WhatsApp BUY/SELL alerts** (entry + exit pulses)
-   - Why: phone push on new BUY NOW / SELL NOW / RIP / Challenge pulses
+7. **WhatsApp BUY/SELL alerts** (entry + exit pulses)
+   - Why: phone push on new BUY NOW / SELL NOW / RIP / Challenge / ML6 pulses
    - **Delivery:** workflow **Signal Desk Live** runs about every **10 minutes** in
-     RTH: focus scan → export site → Telegram → Pages deploy. Same export runs
+     RTH: focus scan → export site → WhatsApp → Pages deploy. Same export runs
      Webull `auto_sync` (stages golden signals only; paper submit needs sandbox
-     keys + `WEBULL_PAPER_SUBMIT=1`). Weekend / push deploys still
+     keys + `WEBULL_PAPER_SUBMIT=1`). A live host (`python -m odte_scanner ui`)
+     sends the same pulses after each focus scan. Weekend / push deploys still
      use **Signal Desk Pages**.
    - Floor is still ~one focus-scan duration on GitHub Actions — not tick streaming.
-   - **Easiest — Telegram (recommended):**
-     1. In Telegram, open **@BotFather** → `/newbot` → copy the **bot token**
-     2. Message your new bot once (any text), then open  
-        `https://api.telegram.org/bot<TOKEN>/getUpdates` → find `"chat":{"id": ...}`
-        (or use @userinfobot for your user id)
-     3. GitHub secrets: `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID`
-   - **WhatsApp (optional):** CallMeBot (`WHATSAPP_TO` + `CALLMEBOT_APIKEY`), Twilio, or Meta Cloud
+   - **CallMeBot (easiest personal WhatsApp):**
+     1. `WHATSAPP_TO` — phone with country code, no plus, e.g. `15551234567`
+     2. Text the CallMeBot number once, then set `CALLMEBOT_APIKEY`
+        from https://www.callmebot.com/blog/free-api-whatsapp-messages/
+   - **Twilio:** `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `TWILIO_WHATSAPP_FROM`, `WHATSAPP_TO`
+   - **Meta Cloud:** `WHATSAPP_TOKEN`, `WHATSAPP_PHONE_NUMBER_ID`, `WHATSAPP_TO`
+   - `WHATSAPP_ALERTS_ENABLED=0` pauses sends. The first run seeds the current board; later new pulses alert.
    - **Webull paper:** sandbox `WEBULL_APP_KEY`, `WEBULL_APP_SECRET`, `WEBULL_ACCOUNT_ID`
      plus `WEBULL_PAPER_SUBMIT=1`. Golden signals only. `dry_run` stays true without that env.
    - Client: `odte_scanner/alerts/` + `odte_scanner/alert_pulse.py` + Pages export

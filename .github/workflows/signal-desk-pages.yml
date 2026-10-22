@@ -101,8 +101,6 @@ jobs:
           TRADIER_SANDBOX: ${{ secrets.TRADIER_SANDBOX }}
           POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
           MASSIVE_API_KEY: ${{ secrets.MASSIVE_API_KEY }}
-          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
           TWILIO_ACCOUNT_SID: ${{ secrets.TWILIO_ACCOUNT_SID }}
           TWILIO_AUTH_TOKEN: ${{ secrets.TWILIO_AUTH_TOKEN }}
           TWILIO_WHATSAPP_FROM: ${{ secrets.TWILIO_WHATSAPP_FROM }}
@@ -121,8 +119,6 @@ jobs:
           TRADIER_SANDBOX: ${{ secrets.TRADIER_SANDBOX }}
           POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
           MASSIVE_API_KEY: ${{ secrets.MASSIVE_API_KEY }}
-          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
           TWILIO_ACCOUNT_SID: ${{ secrets.TWILIO_ACCOUNT_SID }}
           TWILIO_AUTH_TOKEN: ${{ secrets.TWILIO_AUTH_TOKEN }}
           TWILIO_WHATSAPP_FROM: ${{ secrets.TWILIO_WHATSAPP_FROM }}
@@ -151,11 +147,6 @@ jobs:
           else
             echo "POLYGON_API_KEY configured=NO — add repo secret POLYGON_API_KEY (Massive key OK)"
           fi
-          if [ -n "${TELEGRAM_BOT_TOKEN:-}" ] && [ -n "${TELEGRAM_CHAT_ID:-}" ]; then
-            echo "TELEGRAM configured=yes"
-          else
-            echo "TELEGRAM configured=NO — add TELEGRAM_BOT_TOKEN + TELEGRAM_CHAT_ID (easiest alert path)"
-          fi
           if [ -n "${CALLMEBOT_APIKEY:-}" ] && [ -n "${WHATSAPP_TO:-}" ]; then
             echo "WHATSAPP (CallMeBot) configured=yes"
           elif [ -n "${TWILIO_ACCOUNT_SID:-}" ] && [ -n "${WHATSAPP_TO:-}" ]; then
@@ -163,7 +154,7 @@ jobs:
           elif [ -n "${WHATSAPP_TOKEN:-}" ] && [ -n "${WHATSAPP_PHONE_NUMBER_ID:-}" ]; then
             echo "WHATSAPP (Meta Cloud) configured=yes"
           else
-            echo "WHATSAPP configured=NO — optional; Telegram is enough for entry/exit"
+            echo "WHATSAPP configured=NO — set WHATSAPP_TO plus CALLMEBOT_APIKEY, Twilio, or Meta Cloud"
           fi
           python -m odte_scanner export-pages --out site
           test -f site/index.html

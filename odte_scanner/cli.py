@@ -301,7 +301,7 @@ def cmd_alert_loop(args: argparse.Namespace) -> int:
     from odte_scanner.alert_pulse import run_alert_loop
 
     console.print(
-        "[cyan]Fast Telegram alert loop[/cyan] — focus scan + pulse until RTH end (UTC)"
+        "[cyan]Fast WhatsApp alert loop[/cyan] — focus scan + pulse until RTH end (UTC)"
     )
     n = run_alert_loop(
         config_path=args.config,
@@ -377,13 +377,13 @@ def build_parser() -> argparse.ArgumentParser:
 
     ap = sub.add_parser(
         "alert-pulse",
-        help="Push Telegram BUY/SELL for new pulses from latest scan (no Pages deploy)",
+        help="Push WhatsApp BUY/SELL for new pulses from latest scan (no Pages deploy)",
     )
     ap.set_defaults(func=cmd_alert_pulse)
 
     al = sub.add_parser(
         "alert-loop",
-        help="Continuous focus scan + Telegram pulse until RTH end (for Actions)",
+        help="Continuous focus scan + WhatsApp pulse until RTH end (for Actions)",
     )
     al.add_argument("--pause", type=float, default=20.0, help="Seconds between cycles after scan")
     al.add_argument("--cycles", type=int, default=None, help="Stop after N cycles (default: until RTH end)")
